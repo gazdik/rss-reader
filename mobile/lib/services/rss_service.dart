@@ -225,7 +225,7 @@ class RssService {
     final htmlContent = contentEl != null ? contentEl.text : '';
     if (htmlContent.isNotEmpty) {
       final match = RegExp(
-        r'<img[^>]+src=["\']([^"\']+)["\']',
+        "<img[^>]+src=['\"]([^'\"]+)['\"]",
         caseSensitive: false,
       ).firstMatch(htmlContent);
       if (match != null && match.groupCount >= 1) {
