@@ -18,6 +18,7 @@ export interface RSSArticle {
   pubDate?: Date;
   author?: string;
   guid: string;
+  imageUrl?: string;
   read: boolean;
   starred: boolean;
   createdAt: Date;

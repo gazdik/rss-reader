@@ -10,6 +10,7 @@ A modern, frontend-only RSS reader application built with React, TypeScript, and
 - **CORS Proxy**: Automatically fetches feeds through a CORS proxy
 - **Feed Management**: Add, delete, and refresh RSS feeds
 - **Article Reading**: Read articles with a clean interface
+- **Image Display**: Automatically extracts and displays article images from feeds
 - **Mark as Read/Unread**: Track which articles you've read
 - **Star Articles**: Bookmark important articles
 - **Responsive Design**: Modern UI built with TailwindCSS

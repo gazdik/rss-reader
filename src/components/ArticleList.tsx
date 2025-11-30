@@ -41,6 +41,18 @@ export function ArticleList({
             } ${article.read ? 'opacity-60' : ''}`}
             onClick={() => onSelectArticle(article)}
           >
+            {article.imageUrl && (
+              <div className="w-full h-48 overflow-hidden rounded-t-lg">
+                <img
+                  src={article.imageUrl}
+                  alt={article.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-2">
                 <CardTitle className="text-lg leading-tight">

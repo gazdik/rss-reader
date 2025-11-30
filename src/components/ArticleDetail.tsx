@@ -31,6 +31,19 @@ export function ArticleDetail({ article, onClose }: ArticleDetailProps) {
 
       <div className="flex-1 overflow-y-auto p-4">
         <div className="space-y-4">
+          {article.imageUrl && (
+            <div className="w-full rounded-lg overflow-hidden">
+              <img
+                src={article.imageUrl}
+                alt={article.title}
+                className="w-full h-auto"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
+          )}
+
           {article.pubDate && (
             <div className="text-sm text-muted-foreground">
               {format(article.pubDate, 'PPP')}

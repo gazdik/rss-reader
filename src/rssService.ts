@@ -19,6 +19,7 @@ interface ParsedItem {
   pubDate?: string;
   author?: string;
   guid?: string;
+  imageUrl?: string;
 }
 
 function parseXML(xmlString: string): Document {
@@ -28,6 +29,47 @@ function parseXML(xmlString: string): Document {
 
 function getTextContent(element: Element | null): string {
   return element?.textContent?.trim() || '';
+}
+
+function extractImageUrl(item: Element): string | undefined {
+  // Try media:content (common in many feeds)
+  const mediaContent = item.querySelector('media\\:content, content');
+  if (mediaContent) {
+    const url = mediaContent.getAttribute('url');
+    if (url) return url;
+  }
+
+  // Try media:thumbnail
+  const mediaThumbnail = item.querySelector('media\\:thumbnail, thumbnail');
+  if (mediaThumbnail) {
+    const url = mediaThumbnail.getAttribute('url');
+    if (url) return url;
+  }
+
+  // Try enclosure (podcasts and some feeds)
+  const enclosure = item.querySelector('enclosure');
+  if (enclosure) {
+    const type = enclosure.getAttribute('type') || '';
+    if (type.startsWith('image/')) {
+      const url = enclosure.getAttribute('url');
+      if (url) return url;
+    }
+  }
+
+  // Try to extract from description/content HTML
+  const description = getTextContent(item.querySelector('description'));
+  const content = getTextContent(item.querySelector('content\\:encoded')) || 
+                  getTextContent(item.querySelector('content'));
+  
+  const htmlContent = content || description;
+  if (htmlContent) {
+    const imgMatch = htmlContent.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch && imgMatch[1]) {
+      return imgMatch[1];
+    }
+  }
+
+  return undefined;
 }
 
 function parseRSSFeed(xml: Document): ParsedFeed {
@@ -55,6 +97,7 @@ function parseRSSFeed(xml: Document): ParsedFeed {
               getTextContent(item.querySelector('dc\\:creator')),
       guid: getTextContent(item.querySelector('guid')) || 
             getTextContent(item.querySelector('link')),
+      imageUrl: extractImageUrl(item),
     };
     items.push(parsedItem);
   });
@@ -88,6 +131,7 @@ function parseAtomFeed(xml: Document): ParsedFeed {
       author: getTextContent(entry.querySelector('author name')),
       guid: getTextContent(entry.querySelector('id')) || 
             (entryLink?.getAttribute('href') || ''),
+      imageUrl: extractImageUrl(entry),
     };
     items.push(parsedItem);
   });
@@ -157,6 +201,7 @@ export async function refreshFeed(feed: RSSFeed): Promise<number> {
         pubDate: item.pubDate ? new Date(item.pubDate) : undefined,
         author: item.author,
         guid: item.guid || item.link,
+        imageUrl: item.imageUrl,
         read: false,
         starred: false,
         createdAt: new Date(),
