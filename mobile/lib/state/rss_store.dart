@@ -61,10 +61,12 @@ class RssStore extends ChangeNotifier {
   }
 
   Future<void> addFeed(String url) async {
-    final parsedFeed = await rssService.fetchFeed(url);
-    final title = parsedFeed.title.isNotEmpty ? parsedFeed.title : url;
+    final normalizedUrl = _normalizeUrl(url);
+    final parsedFeed = await rssService.fetchFeed(normalizedUrl);
+    final title =
+        parsedFeed.title.isNotEmpty ? parsedFeed.title : normalizedUrl;
     final newFeed = RssFeed.create(
-      url: url,
+      url: normalizedUrl,
       title: title,
       description: parsedFeed.description,
       link: parsedFeed.link,
@@ -141,4 +143,13 @@ class RssStore extends ChangeNotifier {
 
   int get totalUnread =>
       unreadCounts.values.fold(0, (sum, value) => sum + value);
+}
+
+String _normalizeUrl(String input) {
+  final trimmed = input.trim();
+  if (trimmed.isEmpty) return trimmed;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  return 'https://$trimmed';
 }

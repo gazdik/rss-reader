@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart' as xml;
 
@@ -56,20 +58,33 @@ class RssService {
   RssService({required this.dbService});
 
   Future<ParsedFeed> fetchFeed(String url) async {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode != 200) {
-      throw Exception('HTTP error ${response.statusCode}');
+    final uri = Uri.tryParse(url);
+    if (uri == null ||
+        (uri.scheme != 'http' && uri.scheme != 'https') ||
+        uri.host.isEmpty) {
+      throw Exception('Invalid feed URL. Please include http:// or https://');
     }
 
-    final document = xml.XmlDocument.parse(response.body);
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode != 200) {
+        throw Exception('HTTP error ${response.statusCode}');
+      }
 
-    if (document.findAllElements('rss').isNotEmpty ||
-        document.findAllElements('channel').isNotEmpty) {
-      return _parseRss(document);
-    } else if (document.findAllElements('feed').isNotEmpty) {
-      return _parseAtom(document);
-    } else {
-      throw Exception('Unknown feed format');
+      final document = xml.XmlDocument.parse(response.body);
+
+      if (document.findAllElements('rss').isNotEmpty ||
+          document.findAllElements('channel').isNotEmpty) {
+        return _parseRss(document);
+      } else if (document.findAllElements('feed').isNotEmpty) {
+        return _parseAtom(document);
+      } else {
+        throw Exception('Unknown feed format');
+      }
+    } on SocketException catch (e) {
+      throw Exception(
+        'Network error while contacting ${uri.host}: ${e.message}',
+      );
     }
   }
 
