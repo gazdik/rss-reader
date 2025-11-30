@@ -25,13 +25,42 @@ class RssReaderApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorSchemeLight = ColorScheme.fromSeed(
+      seedColor: Colors.deepOrange,
+      brightness: Brightness.light,
+    );
+
+    final colorSchemeDark = ColorScheme.fromSeed(
+      seedColor: Colors.deepOrange,
+      brightness: Brightness.dark,
+    );
+
     return ChangeNotifierProvider<RssStore>.value(
       value: store,
       child: MaterialApp(
         title: 'RSS Reader',
+        themeMode: ThemeMode.system,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          colorScheme: colorSchemeLight,
           useMaterial3: true,
+          scaffoldBackgroundColor: colorSchemeLight.surface,
+          appBarTheme: AppBarTheme(
+            backgroundColor: colorSchemeLight.surface,
+            foregroundColor: colorSchemeLight.onSurface,
+            elevation: 0,
+            centerTitle: false,
+          ),
+        ),
+        darkTheme: ThemeData(
+          colorScheme: colorSchemeDark,
+          useMaterial3: true,
+          scaffoldBackgroundColor: colorSchemeDark.surface,
+          appBarTheme: AppBarTheme(
+            backgroundColor: colorSchemeDark.surface,
+            foregroundColor: colorSchemeDark.onSurface,
+            elevation: 0,
+            centerTitle: false,
+          ),
         ),
         home: const HomeScreen(),
       ),
